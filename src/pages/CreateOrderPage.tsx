@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Shield, ClipboardList, Plus, CheckCircle, Info, Phone, Mail, MapPin, Calendar } from "lucide-react";
+import { ArrowLeft, User, Shield, ClipboardList, Plus, CheckCircle, Info, Phone, Mail, MapPin, Calendar, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -188,8 +188,9 @@ export default function CreateOrderPage() {
                     <th className="text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">Cost</th>
                     <th className="text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">MSRP</th>
                     <th className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">QTY</th>
-                    <th className="text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">Total</th>
-                  </tr>
+                     <th className="text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">Total</th>
+                     <th className="w-10 pb-2"></th>
+                   </tr>
                 </thead>
                 <tbody>
                   {products.map((p) => (
@@ -215,9 +216,18 @@ export default function CreateOrderPage() {
                           className="w-16 text-center mx-auto h-8 text-sm"
                         />
                       </td>
-                      <td className="py-3 text-sm text-right font-medium">
-                        ${(p.msrp * p.qty).toFixed(2)}
-                      </td>
+                       <td className="py-3 text-sm text-right font-medium">
+                         ${(p.msrp * p.qty).toFixed(2)}
+                       </td>
+                       <td className="py-3 text-center">
+                         <button
+                           onClick={() => setProducts((prev) => prev.filter((item) => item.id !== p.id))}
+                           className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded hover:bg-destructive/10"
+                           aria-label={`Remove ${p.product}`}
+                         >
+                           <Trash2 className="w-3.5 h-3.5" />
+                         </button>
+                       </td>
                     </tr>
                   ))}
                 </tbody>
