@@ -1,11 +1,13 @@
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Shield, ClipboardList, Plus, CheckCircle, Info, Phone, Mail, MapPin, Calendar, Trash2 } from "lucide-react";
+import { ArrowLeft, User, Shield, ClipboardList, Plus, CheckCircle, Info, Phone, Mail, MapPin, Calendar, Trash2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
 
 interface ProductRow {
@@ -33,9 +35,20 @@ const defaultProducts: ProductRow[] = [
 
 export default function CreateOrderPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [products, setProducts] = useState<ProductRow[]>(defaultProducts);
   const [addProductOpen, setAddProductOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const nextId = useRef(3);
+
+  // Form state
+  const [firstName, setFirstName] = useState("John");
+  const [lastName, setLastName] = useState("Doe");
+  const [dob, setDob] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [payer, setPayer] = useState("self-pay");
 
   const addProduct = (template: ProductRow) => {
     setProducts((prev) => [...prev, { ...template, id: nextId.current++ }]);
@@ -51,6 +64,70 @@ export default function CreateOrderPage() {
 
   const updateQty = (id: number, qty: number) => {
     setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, qty: Math.max(1, qty) } : p)));
+  };
+
+  const handleSubmit = async () => {
+    if (products.length === 0) {
+      toast({ title: "No products", description: "Add at least one product to the order.", variant: "destructive" });
+      return;
+    }
+    if (!firstName.trim() || !lastName.trim()) {
+      toast({ title: "Missing info", description: "Patient first and last name are required.", variant: "destructive" });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // Generate order number
+      const orderNumber = `ORD-${Date.now().toString().slice(-6)}`;
+
+      // Insert order
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          order_number: orderNumber,
+          patient_first_name: firstName,
+          patient_last_name: lastName,
+          patient_dob: dob || null,
+          patient_phone: phone || null,
+          patient_email: email || null,
+          patient_address: address || null,
+          payer,
+          status: "Draft",
+          total_billable: totalBillable,
+          cogs,
+          margin: parseFloat(margin.toFixed(1)),
+        } as any)
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Insert line items
+      const lineItems = products.map((p) => ({
+        order_id: (order as any).id,
+        product: p.product,
+        hcpcs: p.hcpcs,
+        vendor: p.vendor,
+        cost: p.cost,
+        msrp: p.msrp,
+        qty: p.qty,
+        total: p.msrp * p.qty,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_line_items")
+        .insert(lineItems as any);
+
+      if (itemsError) throw itemsError;
+
+      toast({ title: "Order created", description: `Order #${orderNumber} has been saved.` });
+      navigate("/orders");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to create order.", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -83,24 +160,24 @@ export default function CreateOrderPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>First Name</Label>
-                  <Input placeholder="John" defaultValue="John" />
+                  <Input placeholder="John" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Last Name</Label>
-                  <Input placeholder="Doe" defaultValue="Doe" />
+                  <Input placeholder="Doe" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Date of Birth</Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input type="date" className="pl-10" />
+                    <Input type="date" className="pl-10" value={dob} onChange={(e) => setDob(e.target.value)} />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Phone Number</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input placeholder="(555) 123-4567" className="pl-10" />
+                    <Input placeholder="(555) 123-4567" className="pl-10" value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
                 </div>
               </div>
@@ -108,14 +185,14 @@ export default function CreateOrderPage() {
                 <Label>Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="john.doe@example.com" className="pl-10" />
+                  <Input placeholder="john.doe@example.com" className="pl-10" value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
               </div>
               <div className="mt-4 space-y-2">
                 <Label>Shipping Address</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="123 Medical Way, Suite 400, New York, NY 10001" className="pl-10" />
+                  <Input placeholder="123 Medical Way, Suite 400, New York, NY 10001" className="pl-10" value={address} onChange={(e) => setAddress(e.target.value)} />
                 </div>
               </div>
             </div>
@@ -131,7 +208,7 @@ export default function CreateOrderPage() {
                 <p className="text-xs text-muted-foreground">
                   Pricing adjustments will be applied based on the selected payer contract.
                 </p>
-                <Select defaultValue="self-pay">
+                <Select value={payer} onValueChange={setPayer}>
                   <SelectTrigger className="w-48">
                     <SelectValue />
                   </SelectTrigger>
@@ -188,9 +265,9 @@ export default function CreateOrderPage() {
                     <th className="text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">Cost</th>
                     <th className="text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">MSRP</th>
                     <th className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">QTY</th>
-                     <th className="text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">Total</th>
-                     <th className="w-10 pb-2"></th>
-                   </tr>
+                    <th className="text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pb-2">Total</th>
+                    <th className="w-10 pb-2"></th>
+                  </tr>
                 </thead>
                 <tbody>
                   {products.map((p) => (
@@ -216,18 +293,18 @@ export default function CreateOrderPage() {
                           className="w-16 text-center mx-auto h-8 text-sm"
                         />
                       </td>
-                       <td className="py-3 text-sm text-right font-medium">
-                         ${(p.msrp * p.qty).toFixed(2)}
-                       </td>
-                       <td className="py-3 text-center">
-                         <button
-                           onClick={() => setProducts((prev) => prev.filter((item) => item.id !== p.id))}
-                           className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded hover:bg-destructive/10"
-                           aria-label={`Remove ${p.product}`}
-                         >
-                           <Trash2 className="w-3.5 h-3.5" />
-                         </button>
-                       </td>
+                      <td className="py-3 text-sm text-right font-medium">
+                        ${(p.msrp * p.qty).toFixed(2)}
+                      </td>
+                      <td className="py-3 text-center">
+                        <button
+                          onClick={() => setProducts((prev) => prev.filter((item) => item.id !== p.id))}
+                          className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded hover:bg-destructive/10"
+                          aria-label={`Remove ${p.product}`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -274,7 +351,7 @@ export default function CreateOrderPage() {
                   <div key={p.id} className="mb-3 text-xs">
                     <div className="flex justify-between font-medium">
                       <span>{p.product}</span>
-                      <span>Payer: Blue Cross</span>
+                      <span>Payer: {payer}</span>
                     </div>
                     <div className="text-muted-foreground mt-0.5">HCPCS: {p.hcpcs}</div>
                     <div className="bg-muted rounded p-1.5 mt-1 text-muted-foreground">
@@ -304,9 +381,12 @@ export default function CreateOrderPage() {
                 </div>
               </div>
 
-              <Button className="w-full mt-6" onClick={() => navigate("/orders")}>
-                <CheckCircle className="w-4 h-4 mr-1.5" />
-                Review & Submit
+              <Button className="w-full mt-6" onClick={handleSubmit} disabled={submitting}>
+                {submitting ? (
+                  <><Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> Saving...</>
+                ) : (
+                  <><CheckCircle className="w-4 h-4 mr-1.5" /> Review & Submit</>
+                )}
               </Button>
             </div>
 
