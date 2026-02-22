@@ -1,12 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import { ClipboardList, Package, FileText, Settings, LogOut } from "lucide-react";
-import medsupplyLogo from "@/assets/medsupply-logo.png";
 
 const navItems = [
-  { label: "Orders", icon: ClipboardList, href: "/orders", active: true },
-  { label: "Products", icon: Package, href: "#", soon: true },
-  { label: "Fee Schedules", icon: FileText, href: "#", soon: true },
-];
+{ label: "Orders", icon: ClipboardList, href: "/orders", active: true },
+{ label: "Products", icon: Package, href: "#", soon: true },
+{ label: "Fee Schedules", icon: FileText, href: "#", soon: true }];
+
 
 export default function AppSidebar() {
   const location = useLocation();
@@ -16,9 +15,12 @@ export default function AppSidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <img src={medsupplyLogo} alt="MedSupply" className="h-8" />
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <ClipboardList className="w-4 h-4 text-primary-foreground" />
+          </div>
           <div>
-            <div className="font-semibold text-sm text-foreground">MedSupply</div>
+            <div className="font-semibold text-sm text-foreground">
+            </div>
             <div className="text-xs text-muted-foreground">Internal Tool</div>
           </div>
         </div>
@@ -29,31 +31,30 @@ export default function AppSidebar() {
         <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider px-3 mb-2">
           Platform
         </div>
-        {navItems.map((item) => {
-          const isActive = location.pathname.startsWith(item.href) && item.href !== "#";
-          return (
-            <Link
-              key={item.label}
-              to={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm mb-0.5 transition-colors ${
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                  : item.soon
-                  ? "text-muted-foreground cursor-default"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent"
-              }`}
-              onClick={item.soon ? (e) => e.preventDefault() : undefined}
-            >
+        {navItems.map((item) => {const isActive = location.pathname.startsWith(item.href) && item.href !== "#";
+            return (
+              <Link
+                key={item.label}
+                to={item.href}
+                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm mb-0.5 transition-colors ${
+                isActive ?
+                "bg-sidebar-accent text-sidebar-accent-foreground font-medium" :
+                item.soon ?
+                "text-muted-foreground cursor-default" :
+                "text-sidebar-foreground hover:bg-sidebar-accent"}`
+                }
+                onClick={item.soon ? (e) => e.preventDefault() : undefined}>
+
               <item.icon className="w-4 h-4" />
               <span>{item.label}</span>
-              {item.soon && (
+              {item.soon &&
                 <span className="ml-auto text-[10px] font-medium bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
                   SOON
                 </span>
-              )}
-            </Link>
-          );
-        })}
+                }
+            </Link>);
+
+          })}
 
         <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider px-3 mt-6 mb-2">
           Settings
@@ -61,11 +62,11 @@ export default function AppSidebar() {
         <Link
           to="/settings"
           className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-            location.pathname === "/settings"
-              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-              : "text-sidebar-foreground hover:bg-sidebar-accent"
-          }`}
-        >
+          location.pathname === "/settings" ?
+          "bg-sidebar-accent text-sidebar-accent-foreground font-medium" :
+          "text-sidebar-foreground hover:bg-sidebar-accent"}`
+          }>
+
           <Settings className="w-4 h-4" />
           <span>General</span>
         </Link>
@@ -84,6 +85,6 @@ export default function AppSidebar() {
           <LogOut className="w-4 h-4" />
         </button>
       </div>
-    </aside>
-  );
+    </aside>);
+
 }
