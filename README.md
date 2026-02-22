@@ -1,73 +1,48 @@
-# Welcome to your Lovable project
+**MedSupply**
 
-## Project info
+MedSupply is a clinical, operations-focused order management platform built for medical supply teams. It streamlines patient orders, payer logic, and margin tracking in a structured, calm, and operationally sharp interface.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Designed for internal teams, the system emphasizes clarity, precision, and trust, enabling staff to create, review, and manage insurance-based orders without friction or distraction.
 
-## How can I edit this code?
+**✨ Core Capabilities**
 
-There are several ways of editing your application.
+Secure internal authentication
 
-**Use Lovable**
+Order creation with real-time pricing logic
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Insurance & payer contract handling
 
-Changes made via Lovable will be committed automatically to this repo.
+Margin calculation and profitability tracking
 
-**Use your preferred IDE**
+Structured order detail views
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Administrative account management
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+**🧠 Design Philosophy**
 
-Follow these steps:
+The platform is built around three principles:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Operationally sharp — clear hierarchy, structured data, efficient workflows
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Calm & supportive — no visual noise, no unnecessary motion
 
-# Step 3: Install the necessary dependencies.
-npm i
+Clinical — neutral palette, high legibility, consistent system logic
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Every screen prioritizes readability, predictability, and confidence.
 
-**Edit a file directly in GitHub**
+**🛠 Tech Stack**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+React + TypeScript
 
-**Use GitHub Codespaces**
+Vite
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Tailwind CSS + shadcn/ui
 
-## What technologies are used for this project?
+Backend & storage powered by Lovable Cloud
 
-This project is built with:
+Email/password authentication
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+**🔐 Intended Use**
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This application is designed for authorized internal personnel only.
+It is not a public-facing product.
