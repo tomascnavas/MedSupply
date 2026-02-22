@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Shield, ClipboardList, Plus, CheckCircle, Info, Phone, Mail, MapPin, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import AppLayout from "@/components/AppLayout";
 
 interface ProductRow {
@@ -17,6 +18,14 @@ interface ProductRow {
   qty: number;
 }
 
+const availableProducts: ProductRow[] = [
+  { id: 0, product: "Oxygen Nasal Cannula", hcpcs: "A4615", vendor: "Salter Labs", cost: 3.50, msrp: 8.00, qty: 1 },
+  { id: 0, product: "Glucose Test Strips (50ct)", hcpcs: "A4253", vendor: "Accu-Chek", cost: 18.00, msrp: 35.00, qty: 1 },
+  { id: 0, product: "Sterile Wound Dressing", hcpcs: "A6216", vendor: "3M Healthcare", cost: 5.75, msrp: 12.00, qty: 1 },
+  { id: 0, product: "Compression Stockings", hcpcs: "A6531", vendor: "Jobst Medical", cost: 22.00, msrp: 45.00, qty: 1 },
+  { id: 0, product: "Nebulizer Kit", hcpcs: "A7003", vendor: "Philips Respironics", cost: 35.00, msrp: 70.00, qty: 1 },
+];
+
 const defaultProducts: ProductRow[] = [
   { id: 1, product: "Insulin Syringes 1mL", hcpcs: "A4213", vendor: "BD Medical", cost: 12.5, msrp: 25.0, qty: 2 },
   { id: 2, product: "Latex Gloves (Box)", hcpcs: "A4927", vendor: "Medline", cost: 8.2, msrp: 15.0, qty: 5 },
@@ -25,6 +34,13 @@ const defaultProducts: ProductRow[] = [
 export default function CreateOrderPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<ProductRow[]>(defaultProducts);
+  const [addProductOpen, setAddProductOpen] = useState(false);
+  const nextId = useRef(3);
+
+  const addProduct = (template: ProductRow) => {
+    setProducts((prev) => [...prev, { ...template, id: nextId.current++ }]);
+    setAddProductOpen(false);
+  };
 
   const totalProducts = products.length;
   const cogs = products.reduce((sum, p) => sum + p.cost * p.qty, 0);
@@ -138,10 +154,29 @@ export default function CreateOrderPage() {
                   <ClipboardList className="w-4 h-4 text-muted-foreground" />
                   <h2 className="text-base font-semibold">Order Details</h2>
                 </div>
-                <Button variant="outline" size="sm">
-                  <Plus className="w-3 h-3 mr-1" />
-                  Add Product
-                </Button>
+                <Popover open={addProductOpen} onOpenChange={setAddProductOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Plus className="w-3 h-3 mr-1" />
+                      Add Product
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-64 p-2">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1.5">
+                      Select a product
+                    </div>
+                    {availableProducts.map((ap, i) => (
+                      <button
+                        key={i}
+                        onClick={() => addProduct(ap)}
+                        className="w-full text-left px-2 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                      >
+                        <div className="font-medium">{ap.product}</div>
+                        <div className="text-xs text-muted-foreground">{ap.hcpcs} · {ap.vendor}</div>
+                      </button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <table className="w-full">
