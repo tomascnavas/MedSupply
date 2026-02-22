@@ -14,7 +14,107 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      order_line_items: {
+        Row: {
+          cost: number
+          created_at: string
+          hcpcs: string | null
+          id: string
+          msrp: number
+          order_id: string
+          product: string
+          qty: number
+          total: number
+          vendor: string | null
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          hcpcs?: string | null
+          id?: string
+          msrp?: number
+          order_id: string
+          product: string
+          qty?: number
+          total?: number
+          vendor?: string | null
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          hcpcs?: string | null
+          id?: string
+          msrp?: number
+          order_id?: string
+          product?: string
+          qty?: number
+          total?: number
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_line_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          cogs: number
+          created_at: string
+          id: string
+          margin: number
+          order_number: string
+          patient_address: string | null
+          patient_dob: string | null
+          patient_email: string | null
+          patient_first_name: string
+          patient_last_name: string
+          patient_phone: string | null
+          payer: string
+          status: string
+          total_billable: number
+          updated_at: string
+        }
+        Insert: {
+          cogs?: number
+          created_at?: string
+          id?: string
+          margin?: number
+          order_number: string
+          patient_address?: string | null
+          patient_dob?: string | null
+          patient_email?: string | null
+          patient_first_name: string
+          patient_last_name: string
+          patient_phone?: string | null
+          payer?: string
+          status?: string
+          total_billable?: number
+          updated_at?: string
+        }
+        Update: {
+          cogs?: number
+          created_at?: string
+          id?: string
+          margin?: number
+          order_number?: string
+          patient_address?: string | null
+          patient_dob?: string | null
+          patient_email?: string | null
+          patient_first_name?: string
+          patient_last_name?: string
+          patient_phone?: string | null
+          payer?: string
+          status?: string
+          total_billable?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
