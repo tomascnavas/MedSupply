@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, ClipboardList } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
+import medsupplyLogo from "@/assets/medsupply-logo.png";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -20,11 +21,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-card rounded-xl border border-border shadow-sm p-8">
           {/* Logo */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-              <ClipboardList className="w-6 h-6 text-primary" />
-            </div>
-            <h1 className="text-xl font-bold text-foreground">MedSupply Co.</h1>
+           <div className="flex flex-col items-center mb-8">
+            <img src={medsupplyLogo} alt="MedSupply" className="h-20 mb-2" />
             <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border text-xs font-medium text-muted-foreground">
               <span className="w-1.5 h-1.5 rounded-full bg-success" />
               INTERNAL TOOL
