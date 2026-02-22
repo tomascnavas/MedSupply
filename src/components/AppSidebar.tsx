@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { ClipboardList, Package, FileText, Settings, LogOut } from "lucide-react";
+import medsupplyLogo from "@/assets/medsupply-logo.png";
 
 const navItems = [
   { label: "Orders", icon: ClipboardList, href: "/orders", active: true },
@@ -15,11 +16,9 @@ export default function AppSidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <ClipboardList className="w-4 h-4 text-primary-foreground" />
-          </div>
+          <img src={medsupplyLogo} alt="MedSupply" className="h-8" />
           <div>
-            <div className="font-semibold text-sm text-foreground">MedSupply Co.</div>
+            <div className="font-semibold text-sm text-foreground">MedSupply</div>
             <div className="text-xs text-muted-foreground">Internal Tool</div>
           </div>
         </div>
