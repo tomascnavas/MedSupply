@@ -20,6 +20,21 @@ interface ProductRow {
   qty: number;
 }
 
+const payerMultipliers: Record<string, number> = {
+  "self-pay": 1,
+  "blue-cross": 1.5,
+  "aetna": 1.8,
+  "medicare": 1.2,
+  "cigna": 2.0,
+  "unitedhealth": 2.5,
+};
+
+const getLineTotal = (p: ProductRow, payer: string): number => {
+  if (payer === "self-pay") return p.msrp * p.qty;
+  const multiplier = payerMultipliers[payer] ?? 1;
+  return p.cost * multiplier * p.qty;
+};
+
 const availableProducts: ProductRow[] = [
   { id: 0, product: "Oxygen Nasal Cannula", hcpcs: "A4615", vendor: "Salter Labs", cost: 3.50, msrp: 8.00, qty: 1 },
   { id: 0, product: "Glucose Test Strips (50ct)", hcpcs: "A4253", vendor: "Accu-Chek", cost: 18.00, msrp: 35.00, qty: 1 },
@@ -57,7 +72,7 @@ export default function CreateOrderPage() {
 
   const totalProducts = products.length;
   const cogs = products.reduce((sum, p) => sum + p.cost * p.qty, 0);
-  const subtotal = products.reduce((sum, p) => sum + p.msrp * p.qty, 0);
+  const subtotal = products.reduce((sum, p) => sum + getLineTotal(p, payer), 0);
   const totalBillable = subtotal;
   const profit = totalBillable - cogs;
   const margin = totalBillable > 0 ? (profit / totalBillable) * 100 : 0;
@@ -294,7 +309,7 @@ export default function CreateOrderPage() {
                         />
                       </td>
                       <td className="py-3 text-sm text-right font-medium">
-                        ${(p.msrp * p.qty).toFixed(2)}
+                        ${getLineTotal(p, payer).toFixed(2)}
                       </td>
                       <td className="py-3 text-center">
                         <button
@@ -347,18 +362,27 @@ export default function CreateOrderPage() {
                     Pricing Logic Details
                   </span>
                 </div>
-                {products.map((p) => (
-                  <div key={p.id} className="mb-3 text-xs">
-                    <div className="flex justify-between font-medium">
-                      <span>{p.product}</span>
-                      <span>Payer: {payer}</span>
+                {products.map((p) => {
+                  const multiplier = payerMultipliers[payer] ?? 1;
+                  const isSelfPay = payer === "self-pay";
+                  const lineTotal = getLineTotal(p, payer);
+                  return (
+                    <div key={p.id} className="mb-3 text-xs">
+                      <div className="flex justify-between font-medium">
+                        <span>{p.product}</span>
+                        <span>Payer: {payer}</span>
+                      </div>
+                      <div className="text-muted-foreground mt-0.5">HCPCS: {p.hcpcs}</div>
+                      <div className="bg-muted rounded p-1.5 mt-1 text-muted-foreground">
+                        {isSelfPay ? (
+                          <>Formula: ${p.msrp.toFixed(2)} × {p.qty} units = ${lineTotal.toFixed(2)}</>
+                        ) : (
+                          <>Formula: ${p.cost.toFixed(2)} × {multiplier}x × {p.qty} units = ${lineTotal.toFixed(2)}</>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-muted-foreground mt-0.5">HCPCS: {p.hcpcs}</div>
-                    <div className="bg-muted rounded p-1.5 mt-1 text-muted-foreground">
-                      Formula: ${p.msrp.toFixed(2)} × {p.qty} units = ${(p.msrp * p.qty).toFixed(2)}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Margin */}
